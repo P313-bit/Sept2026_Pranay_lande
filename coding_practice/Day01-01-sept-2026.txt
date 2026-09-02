@@ -1,0 +1,13 @@
+- name: Install Nginx on Pranay server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        stats: present
+
+docker --version
+docker run ubuntu echo "Hello Pranay"
+FROM ubuntu:24.04
+CMD ["echo", "Hello Pranay"]
