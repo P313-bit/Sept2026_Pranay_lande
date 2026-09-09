@@ -1,1 +1,1 @@
-Advanced Kubernetes, Jenkins, and GitLab CI
+Advanced Kubernetes, Jenkins, and GitLab CI.
