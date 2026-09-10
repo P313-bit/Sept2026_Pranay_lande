@@ -146,5 +146,5 @@ COPY . /opt/pranay/devops-project
 CMD ["ls", "-l", "/opt/pranay/devops-project"]
 
 
-# Real Path
+# Real Path.
 /opt/pranay/devops-project
