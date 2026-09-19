@@ -1,0 +1,1 @@
+High Availability, Multi-Region, and Auto-scaling
