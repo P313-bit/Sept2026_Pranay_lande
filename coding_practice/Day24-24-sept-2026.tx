@@ -1,85 +1,87 @@
-# Day 23 — Serverless Architecture and Microservices
-🔹 Ansible — Deploy Lambda Functions Using AWS CLI
-- name: Deploy AWS Lambda Function
+# Day 24 — Advanced Terraform Modules and CI/CD Pipeline Scaling
+
+## 🔹 Ansible — Deploy Docker Containers with Kubernetes Using Helm
+
+```yaml
+- name: Deploy Docker Containers with Helm
   hosts: localhost
   tasks:
-    - name: Create Lambda function
-      command: aws lambda create-function --function-name pranay-lambda --runtime python3.8 --role arn:aws:iam::123456789012:role/lambda-execution-role --handler lambda_function.lambda_handler --zip-file fileb://lambda.zip
-🔹 Terraform — Serverless API Gateway with Lambda Integration
-resource "aws_api_gateway_rest_api" "pranay_api" {
-  name        = "pranay-api"
-  description = "Pranay API"
+    - name: Install Helm
+      command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - name: Deploy microservices with Helm
+      command: helm install pranay-app ./microservice-chart
+🔹 Terraform — Multi-Module Infrastructure with Outputs
+module "pranay_vpc" {
+  source = "./vpc"
 }
 
-resource "aws_lambda_function" "pranay_lambda" {
-  function_name = "pranay-lambda"
-  runtime       = "python3.8"
-  role          = aws_iam_role.lambda_exec_role.arn
-  handler       = "lambda_function.lambda_handler"
-  filename      = "lambda.zip"
+module "pranay_instance" {
+  source = "./instance"
+  vpc_id = module.pranay_vpc.vpc_id
 }
 
-resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.pranay_api.id
-  resource_id = aws_api_gateway_resource.pranay_resource.id
-  http_method = aws_api_gateway_method.pranay_method.http_method
-  integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri  = aws_lambda_function.pranay_lambda.invoke_arn
+output "instance_id" {
+  value = module.pranay_instance.instance_id
 }
-🔹 Kubernetes — Deploy Microservices Using Helm
-helm install pranay-microservice ./microservice-chart
-🔹 Jenkinsfile — Deploy Serverless Applications with Lambda
+🔹 Kubernetes — Helm-based Auto-Scaling Deployments
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pranay-web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pranay-web-app
+  template:
+    metadata:
+      labels:
+        app: pranay-web-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pranay-web-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pranay-web-app
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+🔹 Jenkinsfile — Scaling CI/CD Pipeline
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Scale Up') {
             steps {
-                echo 'Building Lambda function...'
-                sh 'zip -r lambda.zip lambda/'
+                echo 'Scaling up Jenkins pipeline agents for heavy workloads...'
+                // Simulating scaling logic
             }
         }
-        stage('Deploy to AWS Lambda') {
+        stage('Build') {
             steps {
-                script {
-                    sh 'aws lambda update-function-code --function-name pranay-lambda --zip-file fileb://lambda.zip'
-                }
+                echo 'Building project...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying project...'
             }
         }
     }
 }
-🔹 GitLab CI/CD — Deploy Lambda Function
-stages:
-  - build
-  - deploy
-
-build:
-  stage: build
-  script:
-    - zip -r lambda.zip lambda/
-
-deploy:
-  stage: deploy
-  script:
-    - aws lambda update-function-code --function-name pathnex-lambda --zip-file fileb://lambda.zip
- 
 
 
 🔹 Docker
-# Multi-Stage Docker Build
-# Stage 1 — Build Stage
-FROM maven:3.9-eclipse-temurin-17 AS builder
-WORKDIR /opt/pranay/java-build
-COPY . /opt/pranay/java-build/
-RUN mvn clean package
+# Healthcheck
 
-# Stage 2 — Production Stage
-FROM tomcat:9
-WORKDIR /usr/local/tomcat/webapps
-COPY --from=builder /opt/pathnex/java-build/target/*.war /usr/local/tomcat/webapps/
-EXPOSE 8080
-CMD ["catalina.sh", "run"]
-
-# Real Paths
-/opt/pranay/java-build
-/usr/local/tomcat/webapps
+FROM nginx
+HEALTHCHECK CMD curl --fail http://localhost || exit 1
