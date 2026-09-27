@@ -1,0 +1,2 @@
+Serverless Scaling with Lambda and DynamoDB
+Ansible — Deploy Serverless Lambda Functions
