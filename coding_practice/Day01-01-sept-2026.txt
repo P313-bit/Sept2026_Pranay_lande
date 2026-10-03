@@ -5,7 +5,7 @@
     - name: Install nginx
       yum:
         name: nginx
-        stats: present
+        state: present
 
 docker --version
 docker run ubuntu echo "Hello Pranay"
